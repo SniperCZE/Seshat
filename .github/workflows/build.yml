@@ -80,6 +80,5 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           gh release create "${GITHUB_REF_NAME}" dist/*.deb \
-            --target "${GITHUB_SHA}" \
             --title "${GITHUB_REF_NAME}" \
             --notes "Instalační balíček pro Debian."
