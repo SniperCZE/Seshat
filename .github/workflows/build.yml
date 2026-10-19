@@ -42,8 +42,9 @@ jobs:
           docker run --rm -v "$PWD":/src -w /src debian:trixie bash -eux -c '
             apt-get update
             apt-get install -y --no-install-recommends \
-              build-essential debhelper dh-python python3-all \
-              python3-setuptools python3-wheel python3-build fakeroot ca-certificates
+              build-essential debhelper dh-python pybuild-plugin-pyproject \
+              python3-all python3-setuptools python3-wheel python3-build \
+              fakeroot ca-certificates
             rm -rf /tmp/seshat-src
             mkdir -p /tmp/seshat-src
             tar -C /src --exclude=.git --exclude=dist --exclude=.pytest_cache -cf - . \
