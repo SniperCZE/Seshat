@@ -1,0 +1,16 @@
+[Desktop Entry]
+Name=Seshat
+GenericName=Markdown reader
+GenericName[cs]=Čtečka Markdownu
+Comment=Read Markdown documents
+Comment[cs]=Čte soubory Markdown
+Exec=seshat %F
+Icon=io.github.SniperCZE.Seshat
+Terminal=false
+Type=Application
+Categories=Office;Viewer;GTK;
+MimeType=text/markdown;text/x-markdown;
+Keywords=markdown;md;
+Keywords[cs]=markdown;znackovani;
+StartupNotify=true
+StartupWMClass=io.github.SniperCZE.Seshat

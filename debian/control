@@ -1,0 +1,35 @@
+Source: seshat
+Section: text
+Priority: optional
+Maintainer: Ondrej Flidr <flidr@webeo.cz>
+Build-Depends: debhelper-compat (= 13),
+               dh-python,
+               python3-all,
+               python3-setuptools,
+               python3-wheel,
+               python3-build
+Standards-Version: 4.7.2
+Rules-Requires-Root: no
+Homepage: https://github.com/SniperCZE/Seshat
+Vcs-Git: https://github.com/SniperCZE/Seshat.git
+Vcs-Browser: https://github.com/SniperCZE/Seshat
+
+Package: seshat
+Architecture: all
+Depends: ${python3:Depends},
+         ${misc:Depends},
+         python3-gi,
+         gir1.2-gtk-4.0,
+         gir1.2-adw-1,
+         gir1.2-webkit-6.0,
+         python3-markdown-it,
+         python3-mdit-py-plugins,
+         python3-pygments,
+         python3-emoji,
+         desktop-file-utils,
+         shared-mime-info,
+         hicolor-icon-theme
+Description: Markdown reader for GNOME
+ Seshat displays Markdown files as formatted documents, including tables,
+ images, task lists and footnotes. Documents cannot be edited. After
+ installation it registers itself as the default handler for text/markdown.

@@ -1,0 +1,80 @@
+name: Sestavení
+
+on:
+  push:
+    branches: [master]
+    tags: ["v*"]
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Závislosti
+        run: |
+          python -m pip install \
+            markdown-it-py==3.0.0 \
+            mdit-py-plugins==0.4.2 \
+            linkify-it-py==2.0.3 \
+            pygments==2.18.0 \
+            emoji==2.14.1 \
+            pytest \
+            "ruff==0.15.20"
+      - name: Ruff
+        run: ruff check seshat tests
+      - name: Testy
+        run: pytest
+
+  deb:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Debian balíček
+        run: |
+          mkdir -p dist
+          docker run --rm -v "$PWD":/src -w /src debian:trixie bash -eux -c '
+            apt-get update
+            apt-get install -y --no-install-recommends \
+              build-essential debhelper dh-python python3-all \
+              python3-setuptools python3-wheel python3-build fakeroot ca-certificates
+            rm -rf /tmp/seshat-src
+            mkdir -p /tmp/seshat-src
+            tar -C /src --exclude=.git --exclude=dist --exclude=.pytest_cache -cf - . \
+              | tar -C /tmp/seshat-src -xf -
+            tar -C /tmp/seshat-src --exclude=debian -czf /tmp/seshat_0.1.0.orig.tar.gz .
+            cd /tmp/seshat-src
+            dpkg-buildpackage -us -uc -b
+            mkdir -p /src/dist
+            cp /tmp/seshat_*.deb /src/dist/
+          '
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seshat-deb
+          path: dist/*.deb
+          if-no-files-found: error
+
+  release:
+    needs: deb
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: seshat-deb
+          path: dist
+      - name: GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${GITHUB_REF_NAME}" dist/*.deb \
+            --title "${GITHUB_REF_NAME}" \
+            --notes "Instalační balíček pro Debian."

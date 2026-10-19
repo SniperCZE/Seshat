@@ -1,0 +1,152 @@
+#!/bin/sh
+set -e
+
+if [ "$1" = "remove" ] || [ "$1" = "purge" ]; then
+python3 - << 'SESHAT_MIME'
+from __future__ import annotations
+
+from pathlib import Path
+
+APP_ID = "io.github.SniperCZE.Seshat"
+
+DESKTOP_ID = f"{APP_ID}.desktop"
+MIME_TYPES = ("text/markdown", "text/x-markdown")
+SYSTEM_FILE = Path("/etc/xdg/mimeapps.list")
+_SECTIONS = ("[Default Applications]", "[Added Associations]")
+
+
+def install(path: Path = SYSTEM_FILE) -> None:
+    lines = _read(path)
+    for section in _SECTIONS:
+        lines = _ensure(lines, section, _merge)
+    _write(path, lines)
+
+
+def remove(path: Path = SYSTEM_FILE) -> None:
+    if not path.exists():
+        return
+    lines = _read(path)
+    for section in _SECTIONS:
+        lines = _ensure(lines, section, _without_desktop, create=False)
+    _write(path, lines)
+
+
+def _read(path: Path) -> list[str]:
+    if not path.exists():
+        return []
+    return path.read_text(encoding="utf-8").splitlines()
+
+
+def _write(path: Path, lines: list[str]) -> None:
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("\n".join(lines).rstrip() + "\n", encoding="utf-8")
+
+
+def _is_header(line: str) -> bool:
+    stripped = line.strip()
+    return stripped.startswith("[") and stripped.endswith("]")
+
+
+def _body(lines: list[str], header: str) -> list[str]:
+    start = next(index for index, line in enumerate(lines) if line.strip() == header)
+    body: list[str] = []
+    for line in lines[start + 1 :]:
+        if _is_header(line):
+            break
+        body.append(line)
+    return body
+
+
+def _replace_section(lines: list[str], header: str, new_body: list[str]) -> list[str]:
+    result: list[str] = []
+    replaced = False
+    index = 0
+    while index < len(lines):
+        if not replaced and lines[index].strip() == header:
+            result.append(header)
+            result.extend(new_body)
+            index += 1
+            while index < len(lines) and not _is_header(lines[index]):
+                index += 1
+            replaced = True
+            continue
+        result.append(lines[index])
+        index += 1
+    return result
+
+
+def _ensure(lines: list[str], header: str, transform, create: bool = True) -> list[str]:
+    if any(line.strip() == header for line in lines):
+        return _replace_section(lines, header, transform(_body(lines, header)))
+    if not create:
+        return lines
+    extra: list[str] = []
+    if lines and lines[-1].strip():
+        extra.append("")
+    extra.append(header)
+    extra.extend(transform([]))
+    return [*lines, *extra]
+
+
+def _assignment(line: str) -> tuple[str, str] | None:
+    stripped = line.strip()
+    if not stripped or stripped.startswith("#") or "=" not in stripped:
+        return None
+    key, _, value = stripped.partition("=")
+    return key.strip(), value
+
+
+def _merge(body: list[str]) -> list[str]:
+    result: list[str] = []
+    seen: set[str] = set()
+    for line in body:
+        assignment = _assignment(line)
+        if assignment is None:
+            result.append(line)
+            continue
+        key, value = assignment
+        if key not in MIME_TYPES:
+            result.append(line)
+            continue
+        result.append(f"{key}={_with_desktop(value)}")
+        seen.add(key)
+    for mime in MIME_TYPES:
+        if mime not in seen:
+            result.append(f"{mime}={DESKTOP_ID};")
+    return result
+
+
+def _without_desktop(body: list[str]) -> list[str]:
+    result: list[str] = []
+    for line in body:
+        assignment = _assignment(line)
+        if assignment is None:
+            result.append(line)
+            continue
+        key, value = assignment
+        if key not in MIME_TYPES:
+            result.append(line)
+            continue
+        items = [
+            item.strip()
+            for item in value.split(";")
+            if item.strip() and item.strip() != DESKTOP_ID
+        ]
+        if items:
+            result.append(f"{key}={';'.join(items)};")
+    return result
+
+
+def _with_desktop(value: str) -> str:
+    items = [
+        item.strip()
+        for item in value.split(";")
+        if item.strip() and item.strip() != DESKTOP_ID
+    ]
+    return DESKTOP_ID + ";" + (";".join(items) + ";" if items else "")
+
+remove(SYSTEM_FILE)
+SESHAT_MIME
+fi
+
+#DEBHELPER#

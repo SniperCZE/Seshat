@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>io.github.SniperCZE.Seshat</id>
+  <name>Seshat</name>
+  <summary>Read Markdown documents</summary>
+  <summary xml:lang="cs">Čtečka dokumentů Markdown</summary>
+  <metadata_license>MIT</metadata_license>
+  <project_license>MIT</project_license>
+  <description>
+    <p>
+      Seshat displays Markdown files as formatted documents, including tables,
+      images, task lists and footnotes. It does not edit the file.
+    </p>
+  </description>
+  <description xml:lang="cs">
+    <p>
+      Seshat zobrazí soubory Markdown naformátované, včetně tabulek, obrázků,
+      seznamů úkolů a poznámek pod čarou. Soubor neupravuje.
+    </p>
+  </description>
+  <launchable type="desktop-id">io.github.SniperCZE.Seshat.desktop</launchable>
+  <url type="homepage">https://github.com/SniperCZE/Seshat</url>
+  <url type="bugtracker">https://github.com/SniperCZE/Seshat/issues</url>
+  <content_rating type="oars-1.1"/>
+  <releases>
+    <release version="0.1.0" date="2026-10-19"/>
+  </releases>
+</component>

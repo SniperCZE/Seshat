@@ -1,0 +1,10 @@
+#!/bin/sh
+set -e
+
+# Soubory balíčku v tuhle chvíli ještě jsou na disku. postrm už je nemá,
+# proto se asociace odebírá tady a postrm to jen zopakuje vlastní kopií kódu.
+if [ "$1" = "remove" ]; then
+    python3 -m seshat.mimeapps remove
+fi
+
+#DEBHELPER#

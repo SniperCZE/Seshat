@@ -1,0 +1,5 @@
+seshat (0.1.0-1) trixie; urgency=medium
+
+  * První vydání čtečky Markdownu pro GNOME.
+
+ -- Ondrej Flidr <flidr@webeo.cz>  Mon, 19 Oct 2026 12:00:00 +0200

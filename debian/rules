@@ -1,0 +1,11 @@
+#!/usr/bin/make -f
+
+export PYBUILD_NAME=seshat
+export PYBUILD_SYSTEM=pyproject
+export PYBUILD_DISABLE=test
+
+%:
+	dh $@ --with python3 --buildsystem=pybuild
+
+override_dh_install:
+	dh_install --sourcedir=.
