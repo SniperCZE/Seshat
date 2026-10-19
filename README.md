@@ -25,7 +25,7 @@ python3 -m seshat dokument.md
 
 ## Instalace balíčku
 
-GitHub Actions na větvi `master` sestaví `seshat_*.deb` a uloží ho mezi artefakty. Tag `v*` k němu přidá GitHub Release.
+GitHub Actions na větvi `master` sestaví `seshat_*.deb` a vystaví ho jako GitHub Release `v<verze>`, třeba `v0.1.0-1`. Stejný release vznikne i po tagu `v*`.
 
 ```bash
 sudo apt install ./seshat_0.1.0-1_all.deb
